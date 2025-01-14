@@ -43,7 +43,7 @@ if ($hassiteconfig) {
 
     $availablethemes = [];
 
-    foreach (\core_component::get_plugin_list('theme') as $name => $dir) {
+    foreach (\core\component::get_plugin_list('theme') as $name => $dir) {
         $availablethemes[$name] = ucfirst(str_replace('_', ' ', $name));
     }
 

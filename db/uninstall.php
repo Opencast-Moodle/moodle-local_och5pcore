@@ -30,7 +30,7 @@ use local_och5pcore\local\theme_manager;
  */
 function xmldb_local_och5pcore_uninstall() {
 
-    $themes = core_component::get_plugin_list('theme');
+    $themes = \core\component::get_plugin_list('theme');
     if (count($themes) > 0) {
         theme_manager::remove_themes_extension(array_keys($themes));
     }
