@@ -33,9 +33,9 @@ function local_och5pcore_extend_themes() {
     $returnurl = new moodle_url('/admin/settings.php?section=local_och5pcore_settings');
 
     $config = get_config('local_och5pcore', 'extended_themes');
-    $selectedthemes = !empty($config) ? explode(',', $config) : array();
+    $selectedthemes = !empty($config) ? explode(',', $config) : [];
 
-    $installedthemes = core_component::get_plugin_list('theme');
+    $installedthemes = \core\component::get_plugin_list('theme');
 
     $unselectedthemes = array_diff(array_keys($installedthemes), $selectedthemes);
 
@@ -43,7 +43,7 @@ function local_och5pcore_extend_themes() {
         $extendedthemes = theme_manager::extend_themes($selectedthemes);
 
         if ($diffs = array_diff($selectedthemes, $extendedthemes)) {
-            $themenames = array();
+            $themenames = [];
             foreach ($diffs as $diff) {
                 $themenames[] = ucfirst(str_replace('_', ' ', $diff));
             }

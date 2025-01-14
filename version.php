@@ -32,5 +32,5 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->requires = 2020110900; // Only Moodle v3.10 and above.
 $plugin->dependencies = [
     'tool_opencast' => 2023030100,
-    'block_opencast' => 2023030100
+    'block_opencast' => 2023030100,
 ];

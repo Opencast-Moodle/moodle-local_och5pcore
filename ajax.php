@@ -76,7 +76,7 @@ try {
     die;
 }
 
-$data = array();
+$data = [];
 
 switch ($action) {
     case 'courseVideos':

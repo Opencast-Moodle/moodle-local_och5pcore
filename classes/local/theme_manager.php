@@ -52,7 +52,7 @@ class theme_manager {
         global $CFG;
 
         // Initialise the extended themes array list.
-        $extendedthemes = array();
+        $extendedthemes = [];
 
         // Gather all required contents.
         $renderercontent = file_get_contents($CFG->dirroot . '/local/och5pcore/lib/extension_contents/renderer_content.txt');
@@ -143,7 +143,7 @@ class theme_manager {
      */
     public static function remove_themes_extension($themes) {
         // Initialise the list of themes failed to remove extension.
-        $failedtoremoveextension = array();
+        $failedtoremoveextension = [];
 
         foreach ($themes as $themename) {
             // Get the directory of the theme.
@@ -214,7 +214,7 @@ class theme_manager {
         // We define the clean-up flags here.
         // Start and End of a flag help to locate the codes better.
         $cleanupflags = [
-            ['start' => '//#och5p_core', 'end' => '//#end_och5p_core']
+            ['start' => '//#och5p_core', 'end' => '//#end_och5p_core'],
         ];
 
         foreach ($installedthemes as $themename => $themedir) {

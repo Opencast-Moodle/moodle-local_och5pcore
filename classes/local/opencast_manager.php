@@ -27,7 +27,7 @@ namespace local_och5pcore\local;
 
 use tool_opencast\local\api;
 use block_opencast\local\apibridge;
-use \tool_opencast\local\settings_api;
+use tool_opencast\local\settings_api;
 use oauth_helper;
 use moodle_exception;
 
@@ -138,7 +138,7 @@ class opencast_manager {
         }
 
         // Initialise the sorted videos array.
-        $sortedvideos = array();
+        $sortedvideos = [];
 
         foreach ($videotracks as $videotrack) {
 
@@ -271,11 +271,11 @@ class opencast_manager {
         }
         $endpoint .= '/lti';
 
-        $helper = new oauth_helper(array('oauth_consumer_key'    => $consumerkey,
-                                        'oauth_consumer_secret' => $consumersecret));
+        $helper = new oauth_helper(['oauth_consumer_key'    => $consumerkey,
+                                        'oauth_consumer_secret' => $consumersecret]);
 
         // Set all necessary parameters.
-        $params = array();
+        $params = [];
         $params['oauth_version'] = '1.0';
         $params['oauth_nonce'] = $helper->get_nonce();
         $params['oauth_timestamp'] = $helper->get_timestamp();

@@ -41,7 +41,7 @@ if ($hassiteconfig) {
             get_string('setting_extended_themes_header', 'local_och5pcore'),
         ''));
 
-    $availablethemes = array();
+    $availablethemes = [];
 
     foreach (\core_component::get_plugin_list('theme') as $name => $dir) {
         $availablethemes[$name] = ucfirst(str_replace('_', ' ', $name));
@@ -51,7 +51,7 @@ if ($hassiteconfig) {
         'local_och5pcore/extended_themes',
         get_string('setting_extended_themes', 'local_och5pcore'),
         get_string('setting_extended_themes_desc', 'local_och5pcore'),
-        array(),
+        [],
         $availablethemes
     );
 
