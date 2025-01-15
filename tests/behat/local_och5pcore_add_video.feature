@@ -20,31 +20,25 @@ Feature: Add Opencast Video into H5P Core
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast   |
       | lticonsumerkey_1    | CONSUMERKEY                                                   | tool_opencast   |
       | lticonsumersecret_1 | CONSUMERSECRET                                                | tool_opencast   |
-      | uselti             | 1                                                             | local_och5pcore |
+      | uselti              | 1                                                             | local_och5pcore |
     And I log in as "admin"
     And I setup the opencast video block for the course with och5pcore
     And I get the latest h5p content types
     And I navigate to "Plugins > Local plugins > H5P Opencast Extension (Core)" in site administration
-    Then I should see "Boost"
     And I set the following fields to these values:
       | Available themes to extend  | Boost           |
     And I press "Save changes"
     Then I should see "Changes saved"
     # Content bank accessibility is different in Moodle version < 4.0, therefore, we need a unified way "via Navigation block"
+    And I am on "Course 1" course homepage with editing mode on
     And the following config values are set as admin:
       | unaddableblocks | | theme_boost|
-    And I am on site homepage
-    And I turn editing mode on
     And I add the "Navigation" block if not present
-    And I configure the "Navigation" block
-    And I set the following fields to these values:
-      | Page contexts | Display throughout the entire site |
-    And I press "Save changes"
-    And I am on "Course 1" course homepage with editing mode on
     And I configure the "Navigation" block
     And I set the following fields to these values:
       | Display on page types | Any type of course main page |
     And I press "Save changes"
+    And I add the "Opencast Videos" block
     And I log out
 
   @javascript @_switch_iframe
@@ -54,19 +48,18 @@ Feature: Add Opencast Video into H5P Core
     # it won't see some of the flags and texts to validate.
     And I change window size to "1366x968"
     And I am on "Course 1" course homepage with editing mode on
-    And I add the "Navigation" block if not present
-    And I add the "Opencast Videos" block
     And I expand "Site pages" node
     And I click on "Content bank" "link"
     Then I should see "Add"
     When I click on "Add" "button"
     And I click on "Interactive Video" "link"
-    Then I should see "Adding a new H5P interactive content"
+    And I wait until the page is ready
+    Then I should see "New H5P interactive content"
     And I scroll to "iframe.h5p-editor-iframe" in och5pcore
     And I switch to "h5p-editor-iframe" class iframe
-    And I click on ".shepherd-cancel-link" "css_element"
+    And I wait "5" seconds
     And I set the field "Title" to "Test Opencast Video"
-    And I scroll to "div.h5p-add-file" in och5pcore
+    And I scroll to ".h5peditor .h5peditor-panes .video" in och5pcore
     When I click on ".h5p-add-file[title='Add file']" "css_element"
     Then I should see "Opencast Videos"
     And I set the field "Select a video file" to "Spring"
@@ -74,10 +67,9 @@ Feature: Add Opencast Video into H5P Core
     And I switch to the main frame
     When I click on "Save" "button"
     And I wait until the page is ready
-    Then I should see "Test Opencast Video"
+    Then I should see "Content created."
     And I should see "Edit"
     And I switch to "h5p-player" class iframe
-    And I switch to "h5p-iframe" class iframe
     And I should see "Interactive Video"
     And I switch to the main frame
     When I click on "Edit" "link"
@@ -104,7 +96,7 @@ Feature: Add Opencast Video into H5P Core
     And I should see "Interactive Video"
     And I switch to the main frame
     And I am on "Course 1" course homepage
-    And I add a "H5P" to section "1"
+    And I add a "H5P" to section "1" using the activity chooser
     Then I set the field "Name" to "H5P with Opencast Video"
     And I click on "Add..." "button" in the "Package file" "form_row"
     And I select "Content bank" repository in file picker

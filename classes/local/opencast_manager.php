@@ -25,9 +25,9 @@
 
 namespace local_och5pcore\local;
 
+use block_opencast\local\apibridge;
 use tool_opencast\exception\opencast_api_response_exception;
 use tool_opencast\local\api;
-use block_opencast\local\apibridge;
 use tool_opencast\local\settings_api;
 use oauth_helper;
 use moodle_exception;
@@ -168,7 +168,9 @@ class opencast_manager {
                         $quality = str_replace('-quality', '', $tag);
                     }
                 }
-            } else if (isset($videotrack['video']) && isset($videotrack['video']['resolution'])) {
+            }
+
+            if (empty($quality) && isset($videotrack['video']) && isset($videotrack['video']['resolution'])) {
                 $quality = $videotrack['video']['resolution'];
             }
 
