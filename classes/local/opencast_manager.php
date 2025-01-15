@@ -220,24 +220,30 @@ class opencast_manager {
 
     /**
      * Gets LTI parameters to perform the LTI authentication.
+     * It only support the default opencast instance.
      *
      * @param int $courseid id of the course.
      * @return array lti parameters.
      */
     public static function get_lti_params($courseid) {
+        // Check if it is configured to use LTI.
+        $uselti = get_config('local_och5pcore', 'uselti');
+        if (!$uselti) {
+            return [];
+        }
         $params = [];
         // Get the endpoint url of the default oc instance.
         $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
         $mainltiendpoint = settings_api::get_apiurl($defaultocinstanceid);
         // Generate lti params for the main oc instance.
-        $params['main'] = self::generate_lti_params($courseid, $mainltiendpoint);
+        $params['main'] = self::generate_lti_params($defaultocinstanceid, $courseid, $mainltiendpoint);
         // Get the endpoint url of the search node instance.
         $searchnodeltiendpoint = self::get_opencast_search_service_api_instance(true);
 
         // Check if the opencast uses different nodes.
         if ($mainltiendpoint != $searchnodeltiendpoint) {
             // Generate lti params for the search node.
-            $params['search'] = self::generate_lti_params($courseid, $searchnodeltiendpoint);
+            $params['search'] = self::generate_lti_params($defaultocinstanceid, $courseid, $searchnodeltiendpoint);
         }
 
         return $params;
@@ -246,19 +252,21 @@ class opencast_manager {
     /**
      * generate LTI parameters to perform the LTI authentication.
      *
+     * @param int $ocinstanceid opencast instance id.
      * @param int $courseid id of the course.
      * @param string $endpoint the lti endpoint.
      * @return array lti parameters.
      */
-    public static function generate_lti_params($courseid, $endpoint) {
+    public static function generate_lti_params($ocinstanceid, $courseid, $endpoint) {
         global $CFG, $USER;
 
         // Get the course object.
         $course = get_course($courseid);
 
         // Get configured consumerkey and consumersecret.
-        $consumerkey = get_config('local_och5pcore', 'lticonsumerkey');
-        $consumersecret = get_config('local_och5pcore', 'lticonsumersecret');
+        $lticredentials = self::get_lti_credentials($ocinstanceid);
+        $consumerkey = $lticredentials['consumerkey'];
+        $consumersecret = $lticredentials['consumersecret'];
 
         // Check if all requirements are correctly configured.
         if (empty($consumerkey) || empty($consumersecret) || empty($endpoint)) {
@@ -320,5 +328,41 @@ class opencast_manager {
         // Additional params.
         $params['endpoint'] = $endpoint;
         return $params;
+    }
+
+    /**
+     * Checks if LTI credentials are configured for a given Opencast instance.
+     *
+     * This function verifies whether both the LTI consumer key and consumer secret
+     * are set for the specified Opencast instance.
+     *
+     * @param int $ocinstanceid The ID of the Opencast instance to check, default 0 falls back to default instance id.
+     *
+     * @return bool Returns true if both LTI consumer key and secret are configured,
+     *              false otherwise.
+     */
+    public static function is_lti_credentials_configured(int $ocinstanceid = 0) {
+        if (empty($ocinstanceid)) {
+            $ocinstanceid = settings_api::get_default_ocinstance()->id;
+        }
+        $lticredentials = self::get_lti_credentials($ocinstanceid);
+        return !empty($lticredentials['consumerkey']) && !empty($lticredentials['consumersecret']);
+    }
+
+    /**
+     * Retrieves the LTI consumer key and consumer secret for a given Opencast instance ID.
+     *
+     * @param int $ocinstanceid The ID of the Opencast instance, default 0 falls back to default instance id.
+     *
+     * @return array An associative array containing the 'consumerkey' and 'consumersecret' for the given Opencast instance.
+     *               If the credentials are not found, an empty array is returned.
+     */
+    public static function get_lti_credentials(int $ocinstanceid = 0) {
+        if (empty($ocinstanceid)) {
+            $ocinstanceid = settings_api::get_default_ocinstance()->id;
+        }
+        $lticonsumerkey = settings_api::get_lticonsumerkey($ocinstanceid);
+        $lticonsumersecret = settings_api::get_lticonsumersecret($ocinstanceid);
+        return ['consumerkey' => $lticonsumerkey, 'consumersecret' => $lticonsumersecret];
     }
 }

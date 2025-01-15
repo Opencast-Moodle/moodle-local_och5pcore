@@ -50,6 +50,10 @@ $string['setting_lti_consumersecret'] = 'LTI Consumer Secret';
 $string['setting_lti_consumersecret_desc'] = 'LTI Consumer Secret for the opencast.';
 $string['setting_lti_header'] = 'LTI Configuration';
 $string['setting_lti_header_desc'] = 'When "Securing Static Files" in Opencast configuration is enabled, it is necessary to use LTI authentication.';
+$string['setting_uselti'] = 'Enable LTI authentication';
+$string['setting_uselti_desc'] = 'When enabled, selected Opencast videos will be delivered through LTI authentication. This is typically used alongside Secure Static Files in Opencast for enhanced security.';
+$string['setting_uselti_nolti_desc'] = 'To enable LTI Authentication for Opencast, you must configure the required credentials (Consumer Key and Consumer Secret) for the default instance in Opencast API plugin. Please do so via this link: {$a}';
+$string['setting_uselti_tool_opencast_link_name'] = 'Opencast API Settings';
 $string['unextended_error'] = 'Unable to unextend theme(s): %s';
 $string['video_course_error'] = 'An error occured while obtaining Opencast course videos.';
 
