@@ -25,6 +25,7 @@
 
 namespace local_och5pcore\local;
 
+use tool_opencast\exception\opencast_api_response_exception;
 use tool_opencast\local\api;
 use block_opencast\local\apibridge;
 use tool_opencast\local\settings_api;
@@ -102,21 +103,33 @@ class opencast_manager {
         // Get tool_opencast api instance for search service.
         $api = self::get_opencast_search_service_api_instance();
 
-        // Prepare the endpoint url.
-        $url = '/search/episode.json?id=' . $identifier;
+        // Prepare params for search.
+        $params = [
+            'id' => $identifier,
+        ];
+        // Perform the search call.
+        $response = $api->opencastapi->search->getEpisodes($params);
+        $code = $response['code'];
 
-        // Make the get request.
-        $searchresult = json_decode($api->oc_get($url), true);
-
-        // If something went wrong, we return moodle_exception.
-        if ($api->get_http_code() != 200) {
-            throw new moodle_exception('search_episode_error', 'local_och5pcore');
+        // Make sure everything is good.
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
-        // Extract the tracks from mediapackage.
+        // Parse the response body to work with arrays, which is easier.
+        $searchresult = json_decode(json_encode($response['body']), true);
+
+        // Extract the tracks from mediapackage, for Opencast < 16.
         $tracks = (isset($searchresult['search-results']['result']) ?
             $searchresult['search-results']['result']['mediapackage']['media']['track'] :
             null);
+
+        // Opencast >= 16 support.
+        if (empty($tracks)) {
+            $tracks = (isset($searchresult['result'][0]) ?
+                $searchresult['result'][0]['mediapackage']['media']['track'] :
+                null);
+        }
 
         // If tracks does not exists, we return moodle_exception.
         if (!$tracks) {
@@ -178,26 +191,34 @@ class opencast_manager {
         // Get api instance from tool_opencast.
         $api = api::get_instance();
 
-        // Services endpoint initialization.
-        $servicesurl = '/services/services.json';
+        // Get the search service data.
+        $response = $api->opencastapi->services->getServiceJSON('org.opencastproject.search');
+        $code = $response['code'];
 
-        // Make a get call to default oc instance to receive services.
-        $result = json_decode($api->oc_get($servicesurl), true);
+        // Make sure everything goes fine.
+        if ($code != 200 && $code != 404) {
+            throw new opencast_api_response_exception($response);
+        }
+
+        // If it could not find the search service, we return the the api instance.
+        if ($code == 404) {
+            return $api;
+        }
+        // Get the services object from the get call.
+        $servicesobj = $response['body'];
 
         // Check if the get call returns any services, if not we return the default oc instance api.
-        if (!isset($result['services']['service']) || empty($result['services']['service'])) {
+        if (!property_exists($servicesobj, 'services') || !property_exists($servicesobj->services, 'service')
+            || empty($servicesobj->services->service)) {
             return $api;
         }
 
-        // Get the services array from the get call.
-        $services = $result['services']['service'];
-        // Get the index of the search service.
-        $searchserviceindex = array_search('/search', array_column($services, 'path'));
-        // Extract the search service array, if exists.
-        $searchservice = (isset($services[$searchserviceindex])) ? $services[$searchserviceindex] : null;
+        // Parse the service object to array, which is easier to use!
+        $searchservice = (array) $servicesobj->services->service;
 
         // Check if the search service is active and online to make calls.
         if (!empty($searchservice) && $searchservice['active'] && $searchservice['online']) {
+            // We are working with default opencast instance for now.
             $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
             // Initialize the custom configs with the search service's host.
             $customconfigs = [
