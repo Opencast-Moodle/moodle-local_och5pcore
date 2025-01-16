@@ -26,8 +26,6 @@
 use local_och5pcore\local\video_manager;
 use local_och5pcore\local\opencast_manager;
 use core_h5p\factory;
-use moodle_exception;
-use context_course;
 
 define('AJAX_SCRIPT', true);
 require(__DIR__ . '/../../config.php');
@@ -76,7 +74,7 @@ try {
     die;
 }
 
-$data = array();
+$data = [];
 
 switch ($action) {
     case 'courseVideos':

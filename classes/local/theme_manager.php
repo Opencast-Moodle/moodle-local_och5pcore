@@ -25,8 +25,6 @@
 
 namespace local_och5pcore\local;
 
-use core_component;
-
 /**
  * Theme Manager class contains all related functions to extend and unextend the themes.
  *
@@ -52,7 +50,7 @@ class theme_manager {
         global $CFG;
 
         // Initialise the extended themes array list.
-        $extendedthemes = array();
+        $extendedthemes = [];
 
         // Gather all required contents.
         $renderercontent = file_get_contents($CFG->dirroot . '/local/och5pcore/lib/extension_contents/renderer_content.txt');
@@ -68,7 +66,7 @@ class theme_manager {
         foreach ($themes as $themename) {
 
             // Get the directory of the theme.
-            $dir = core_component::get_plugin_directory('theme', $themename);
+            $dir = \core\component::get_plugin_directory('theme', $themename);
 
             // Replace the renderer class name with the theme name in the renderer content.
             $renderercontent = str_replace('local_och5pcore_h5p_renderer',
@@ -143,11 +141,11 @@ class theme_manager {
      */
     public static function remove_themes_extension($themes) {
         // Initialise the list of themes failed to remove extension.
-        $failedtoremoveextension = array();
+        $failedtoremoveextension = [];
 
         foreach ($themes as $themename) {
             // Get the directory of the theme.
-            $dir = core_component::get_plugin_directory('theme', $themename);
+            $dir = \core\component::get_plugin_directory('theme', $themename);
 
             // Step 1: remove extension from theme renderers file.
             // If the theme has the renderer file.
@@ -210,11 +208,11 @@ class theme_manager {
      */
     public static function cleaup_themes_extension() {
         // Get the installed themes.
-        $installedthemes = core_component::get_plugin_list('theme');
+        $installedthemes = \core\component::get_plugin_list('theme');
         // We define the clean-up flags here.
         // Start and End of a flag help to locate the codes better.
         $cleanupflags = [
-            ['start' => '//#och5p_core', 'end' => '//#end_och5p_core']
+            ['start' => '//#och5p_core', 'end' => '//#end_och5p_core'],
         ];
 
         foreach ($installedthemes as $themename => $themedir) {

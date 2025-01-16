@@ -25,9 +25,10 @@
 
 namespace local_och5pcore\local;
 
-use tool_opencast\local\api;
 use block_opencast\local\apibridge;
-use \tool_opencast\local\settings_api;
+use tool_opencast\exception\opencast_api_response_exception;
+use tool_opencast\local\api;
+use tool_opencast\local\settings_api;
 use oauth_helper;
 use moodle_exception;
 
@@ -102,21 +103,33 @@ class opencast_manager {
         // Get tool_opencast api instance for search service.
         $api = self::get_opencast_search_service_api_instance();
 
-        // Prepare the endpoint url.
-        $url = '/search/episode.json?id=' . $identifier;
+        // Prepare params for search.
+        $params = [
+            'id' => $identifier,
+        ];
+        // Perform the search call.
+        $response = $api->opencastapi->search->getEpisodes($params);
+        $code = $response['code'];
 
-        // Make the get request.
-        $searchresult = json_decode($api->oc_get($url), true);
-
-        // If something went wrong, we return moodle_exception.
-        if ($api->get_http_code() != 200) {
-            throw new moodle_exception('search_episode_error', 'local_och5pcore');
+        // Make sure everything is good.
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
-        // Extract the tracks from mediapackage.
+        // Parse the response body to work with arrays, which is easier.
+        $searchresult = json_decode(json_encode($response['body']), true);
+
+        // Extract the tracks from mediapackage, for Opencast < 16.
         $tracks = (isset($searchresult['search-results']['result']) ?
             $searchresult['search-results']['result']['mediapackage']['media']['track'] :
             null);
+
+        // Opencast >= 16 support.
+        if (empty($tracks)) {
+            $tracks = (isset($searchresult['result'][0]) ?
+                $searchresult['result'][0]['mediapackage']['media']['track'] :
+                null);
+        }
 
         // If tracks does not exists, we return moodle_exception.
         if (!$tracks) {
@@ -138,7 +151,7 @@ class opencast_manager {
         }
 
         // Initialise the sorted videos array.
-        $sortedvideos = array();
+        $sortedvideos = [];
 
         foreach ($videotracks as $videotrack) {
 
@@ -155,7 +168,9 @@ class opencast_manager {
                         $quality = str_replace('-quality', '', $tag);
                     }
                 }
-            } else if (isset($videotrack['video']) && isset($videotrack['video']['resolution'])) {
+            }
+
+            if (empty($quality) && isset($videotrack['video']) && isset($videotrack['video']['resolution'])) {
                 $quality = $videotrack['video']['resolution'];
             }
 
@@ -178,26 +193,34 @@ class opencast_manager {
         // Get api instance from tool_opencast.
         $api = api::get_instance();
 
-        // Services endpoint initialization.
-        $servicesurl = '/services/services.json';
+        // Get the search service data.
+        $response = $api->opencastapi->services->getServiceJSON('org.opencastproject.search');
+        $code = $response['code'];
 
-        // Make a get call to default oc instance to receive services.
-        $result = json_decode($api->oc_get($servicesurl), true);
+        // Make sure everything goes fine.
+        if ($code != 200 && $code != 404) {
+            throw new opencast_api_response_exception($response);
+        }
+
+        // If it could not find the search service, we return the the api instance.
+        if ($code == 404) {
+            return $api;
+        }
+        // Get the services object from the get call.
+        $servicesobj = $response['body'];
 
         // Check if the get call returns any services, if not we return the default oc instance api.
-        if (!isset($result['services']['service']) || empty($result['services']['service'])) {
+        if (!property_exists($servicesobj, 'services') || !property_exists($servicesobj->services, 'service')
+            || empty($servicesobj->services->service)) {
             return $api;
         }
 
-        // Get the services array from the get call.
-        $services = $result['services']['service'];
-        // Get the index of the search service.
-        $searchserviceindex = array_search('/search', array_column($services, 'path'));
-        // Extract the search service array, if exists.
-        $searchservice = (isset($services[$searchserviceindex])) ? $services[$searchserviceindex] : null;
+        // Parse the service object to array, which is easier to use!
+        $searchservice = (array) $servicesobj->services->service;
 
         // Check if the search service is active and online to make calls.
         if (!empty($searchservice) && $searchservice['active'] && $searchservice['online']) {
+            // We are working with default opencast instance for now.
             $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
             // Initialize the custom configs with the search service's host.
             $customconfigs = [
@@ -220,24 +243,30 @@ class opencast_manager {
 
     /**
      * Gets LTI parameters to perform the LTI authentication.
+     * It only support the default opencast instance.
      *
      * @param int $courseid id of the course.
      * @return array lti parameters.
      */
     public static function get_lti_params($courseid) {
+        // Check if it is configured to use LTI.
+        $uselti = get_config('local_och5pcore', 'uselti');
+        if (!$uselti) {
+            return [];
+        }
         $params = [];
         // Get the endpoint url of the default oc instance.
         $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
         $mainltiendpoint = settings_api::get_apiurl($defaultocinstanceid);
         // Generate lti params for the main oc instance.
-        $params['main'] = self::generate_lti_params($courseid, $mainltiendpoint);
+        $params['main'] = self::generate_lti_params($defaultocinstanceid, $courseid, $mainltiendpoint);
         // Get the endpoint url of the search node instance.
         $searchnodeltiendpoint = self::get_opencast_search_service_api_instance(true);
 
         // Check if the opencast uses different nodes.
         if ($mainltiendpoint != $searchnodeltiendpoint) {
             // Generate lti params for the search node.
-            $params['search'] = self::generate_lti_params($courseid, $searchnodeltiendpoint);
+            $params['search'] = self::generate_lti_params($defaultocinstanceid, $courseid, $searchnodeltiendpoint);
         }
 
         return $params;
@@ -246,19 +275,21 @@ class opencast_manager {
     /**
      * generate LTI parameters to perform the LTI authentication.
      *
+     * @param int $ocinstanceid opencast instance id.
      * @param int $courseid id of the course.
      * @param string $endpoint the lti endpoint.
      * @return array lti parameters.
      */
-    public static function generate_lti_params($courseid, $endpoint) {
+    public static function generate_lti_params($ocinstanceid, $courseid, $endpoint) {
         global $CFG, $USER;
 
         // Get the course object.
         $course = get_course($courseid);
 
         // Get configured consumerkey and consumersecret.
-        $consumerkey = get_config('local_och5pcore', 'lticonsumerkey');
-        $consumersecret = get_config('local_och5pcore', 'lticonsumersecret');
+        $lticredentials = self::get_lti_credentials($ocinstanceid);
+        $consumerkey = $lticredentials['consumerkey'];
+        $consumersecret = $lticredentials['consumersecret'];
 
         // Check if all requirements are correctly configured.
         if (empty($consumerkey) || empty($consumersecret) || empty($endpoint)) {
@@ -271,11 +302,11 @@ class opencast_manager {
         }
         $endpoint .= '/lti';
 
-        $helper = new oauth_helper(array('oauth_consumer_key'    => $consumerkey,
-                                        'oauth_consumer_secret' => $consumersecret));
+        $helper = new oauth_helper(['oauth_consumer_key'    => $consumerkey,
+                                        'oauth_consumer_secret' => $consumersecret]);
 
         // Set all necessary parameters.
-        $params = array();
+        $params = [];
         $params['oauth_version'] = '1.0';
         $params['oauth_nonce'] = $helper->get_nonce();
         $params['oauth_timestamp'] = $helper->get_timestamp();
@@ -320,5 +351,41 @@ class opencast_manager {
         // Additional params.
         $params['endpoint'] = $endpoint;
         return $params;
+    }
+
+    /**
+     * Checks if LTI credentials are configured for a given Opencast instance.
+     *
+     * This function verifies whether both the LTI consumer key and consumer secret
+     * are set for the specified Opencast instance.
+     *
+     * @param int $ocinstanceid The ID of the Opencast instance to check, default 0 falls back to default instance id.
+     *
+     * @return bool Returns true if both LTI consumer key and secret are configured,
+     *              false otherwise.
+     */
+    public static function is_lti_credentials_configured(int $ocinstanceid = 0) {
+        if (empty($ocinstanceid)) {
+            $ocinstanceid = settings_api::get_default_ocinstance()->id;
+        }
+        $lticredentials = self::get_lti_credentials($ocinstanceid);
+        return !empty($lticredentials['consumerkey']) && !empty($lticredentials['consumersecret']);
+    }
+
+    /**
+     * Retrieves the LTI consumer key and consumer secret for a given Opencast instance ID.
+     *
+     * @param int $ocinstanceid The ID of the Opencast instance, default 0 falls back to default instance id.
+     *
+     * @return array An associative array containing the 'consumerkey' and 'consumersecret' for the given Opencast instance.
+     *               If the credentials are not found, an empty array is returned.
+     */
+    public static function get_lti_credentials(int $ocinstanceid = 0) {
+        if (empty($ocinstanceid)) {
+            $ocinstanceid = settings_api::get_default_ocinstance()->id;
+        }
+        $lticonsumerkey = settings_api::get_lticonsumerkey($ocinstanceid);
+        $lticonsumersecret = settings_api::get_lticonsumersecret($ocinstanceid);
+        return ['consumerkey' => $lticonsumerkey, 'consumersecret' => $lticonsumersecret];
     }
 }

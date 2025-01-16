@@ -41,9 +41,9 @@ if ($hassiteconfig) {
             get_string('setting_extended_themes_header', 'local_och5pcore'),
         ''));
 
-    $availablethemes = array();
+    $availablethemes = [];
 
-    foreach (\core_component::get_plugin_list('theme') as $name => $dir) {
+    foreach (\core\component::get_plugin_list('theme') as $name => $dir) {
         $availablethemes[$name] = ucfirst(str_replace('_', ' ', $name));
     }
 
@@ -51,7 +51,7 @@ if ($hassiteconfig) {
         'local_och5pcore/extended_themes',
         get_string('setting_extended_themes', 'local_och5pcore'),
         get_string('setting_extended_themes_desc', 'local_och5pcore'),
-        array(),
+        [],
         $availablethemes
     );
 
@@ -65,15 +65,26 @@ if ($hassiteconfig) {
             get_string('setting_lti_header_desc', 'local_och5pcore')
         ));
 
-    $lticonsumerkeysetting = new admin_setting_configtext('local_och5pcore/lticonsumerkey',
-        get_string('setting_lti_consumerkey', 'local_och5pcore'),
-        get_string('setting_lti_consumerkey_desc', 'local_och5pcore'), '');
-    $settings->add($lticonsumerkeysetting);
+    // Make sure the lti credentials are set before offering any settings!
+    $hasconfiguredlti = opencast_manager::is_lti_credentials_configured();
 
-    $lticonsumersecretsetting = new admin_setting_configpasswordunmask('local_och5pcore/lticonsumersecret',
-        get_string('setting_lti_consumersecret', 'local_och5pcore'),
-        get_string('setting_lti_consumersecret_desc', 'local_och5pcore'), '');
-    $settings->add($lticonsumersecretsetting);
+    // Providing use lti option, when the consumer key and secret are configured in tool_opencast.
+    if ($hasconfiguredlti) {
+        $settings->add(new admin_setting_configcheckbox('local_och5pcore/uselti',
+            get_string('setting_uselti', 'local_och5pcore'),
+            get_string('setting_uselti_desc', 'local_och5pcore'), 0));
+    } else {
+        // Otherwise, we will inform the admin about this setting with extra info to configure this if needed.
+        $path = '/admin/category.php?category=tool_opencast';
+        $toolopencasturl = new \moodle_url($path);
+        $link = \html_writer::link($toolopencasturl,
+            get_string('setting_uselti_tool_opencast_link_name', 'local_och5pcore'), ['target' => '_blank']);
+        $description = get_string('setting_uselti_nolti_desc', 'local_och5pcore', $link);
+        $settings->add(
+            new admin_setting_configempty('local_och5pcore/uselti',
+                get_string('setting_uselti', 'local_och5pcore'),
+                $description));
+    }
 
     $ADMIN->add('localplugins', $settings);
 }

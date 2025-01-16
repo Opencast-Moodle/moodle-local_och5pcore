@@ -54,7 +54,7 @@ class video_manager {
         }
 
         // Initialise options array with an empty option.
-        $options = array('<option value="">-</option>');
+        $options = ['<option value="">-</option>'];
 
         // Loop through videos if there is any.
         foreach ($coursevideos->videos as $video) {
@@ -77,11 +77,11 @@ class video_manager {
         $sortedvideos = opencast_manager::get_episode_tracks($identifier);
 
         // Initialise options array with an empty option tag.
-        $options = array('<option value="">-</option>');
+        $options = ['<option value="">-</option>'];
 
         foreach ($sortedvideos as $flavor => $qualities) {
             // Extract type and mime from the item.
-            $obj = array();
+            $obj = [];
             $obj['type'] = ((strpos($flavor, 'presenter/delivery') !== false) ?
                 get_string('flavor:presenter', 'local_och5pcore') :
                 get_string('flavor:presentation', 'local_och5pcore'));
@@ -92,8 +92,8 @@ class video_manager {
             $optiontext = "{$obj['type']} ({$obj['mime']})";
 
             // Extract and place the qualities.
-            $optionvalue = array();
-            $qualitiesarray = array();
+            $optionvalue = [];
+            $qualitiesarray = [];
             foreach ($qualities as $quality => $video) {
                 $qualitydatastring = '{"quality": "' . $quality . '", "url": "' . $video['url'] .
                     '", "mime": "' . $match[1] . '", "id": "' . $video['id'] .
@@ -130,7 +130,7 @@ class video_manager {
         // Get the enrolled courses.
         $courses = enrol_get_my_courses();
         // Initialise options array with an empty option tag.
-        $options = array('<option value="">-</option>');
+        $options = ['<option value="">-</option>'];
         foreach ($courses as $course) {
             $context = \context_course::instance($course->id);
             if (!is_null($context) && has_capability('block/opencast:viewunpublishedvideos', $context)) {
