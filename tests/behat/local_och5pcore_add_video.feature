@@ -14,31 +14,36 @@ Feature: Add Opencast Video into H5P Core
       | student1 | C1     | student        |
     And the following config values are set as admin:
       | config              | value                                                         | plugin          |
-      | apiurl_1            | https://stable.opencast.org                                   | tool_opencast   |
+      | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast   |
+      ### NOTE: As we want to perform LTI and it is only possible when the opencast server has this PR: https://github.com/elan-ev/opencast_nginx/pull/5 patched (Partitioned Cookies),
+      ### therefore we use develop.opencast.org for now, which it is the only one that has this available at the time of this upgrade!
+      | apiurl_1            | https://develop.opencast.org                                  | tool_opencast   |
       | apiusername_1       | admin                                                         | tool_opencast   |
       | apipassword_1       | opencast                                                      | tool_opencast   |
-      | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast   |
       | lticonsumerkey_1    | CONSUMERKEY                                                   | tool_opencast   |
       | lticonsumersecret_1 | CONSUMERSECRET                                                | tool_opencast   |
+      | apitimeout_1        | 0                                                             | tool_opencast   |
+      | apiconnecttimeout_1 | 0                                                             | tool_opencast   |
+      | workflow_roles_1    | republish-metadata                                            | block_opencast  |
+      | aclcontrolafter_1   | 1                                                             | block_opencast  |
       | uselti              | 1                                                             | local_och5pcore |
     And I log in as "admin"
-    And I setup the opencast video block for the course with och5pcore
     And I get the latest h5p content types
     And I navigate to "Plugins > Local plugins > H5P Opencast Extension (Core)" in site administration
     And I set the following fields to these values:
       | Available themes to extend  | Boost           |
     And I press "Save changes"
     Then I should see "Changes saved"
-    # Content bank accessibility is different in Moodle version < 4.0, therefore, we need a unified way "via Navigation block"
-    And I am on "Course 1" course homepage with editing mode on
     And the following config values are set as admin:
       | unaddableblocks | | theme_boost|
     And I add the "Navigation" block if not present
     And I configure the "Navigation" block
     And I set the following fields to these values:
-      | Display on page types | Any type of course main page |
+      | Page contexts | Display throughout the entire site |
     And I press "Save changes"
+    And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
+    And I setup the opencast video block for the course with och5pcore
     And I log out
 
   @javascript @_switch_iframe

@@ -22,3 +22,12 @@
 - Compatibility for Moodle v4.0 and v4.1 and Moodle Opencast Plugins v4.0-r1
 - Added support for privacy policy (null)
 - Improved UI/UX by adding clearer labels for the dropdowns
+
+### v4.5-r1
+- new moodle coding styles! e.g. array() to [], lang sorting, etc.
+- core namespace changes: core_component to \core\component
+- use LTI credentials from Opencast API tool plugin!
+- Use the opencast API library instead of pure curl calls if necessary!
+- Support for OC 16 more in the area of either eliminating the use of search endpoint or making it (backward) compatible.
+- Upgrade behat test!
+- Use the latest moodle ci workflows!

@@ -34,6 +34,12 @@ use local_och5pcore\local\opencast_manager;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Function to upgrade local_och5pcore.
+ *
+ * @param int $oldversion the version we are upgrading from.
+ * @return bool result
+ */
 function xmldb_local_och5pcore_upgrade($oldversion) {
 
     if ($oldversion < 2023042802) {
