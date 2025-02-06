@@ -101,7 +101,7 @@ class opencast_manager {
      */
     public static function get_episode_tracks($identifier) {
         // Get tool_opencast api instance for search service.
-        $api = self::get_opencast_search_service_api_instance();
+        $api = self::get_opencast_presentation_node_api_instance();
 
         // Prepare params for search.
         $params = [
@@ -183,48 +183,67 @@ class opencast_manager {
 
 
     /**
-     * Get api instance from tool_opencast for search service.
+     * Retrieves the tool_opencast API instance or the url for the Opencast presentation node.
      *
-     * @param boolean $returnbaseurl whether to return only the baseurl or the api object back
+     * @param bool $returnbaseurl If true, the function returns the base URL of the presentation node API.
+     *                             If false, the function returns the tool_opencast API instance.
+     *                             Default value is false.
      *
-     * @return tool_opencast\local\api opencast api instance.
+     * @return tool_opencast\local\api The tool_opencast API instance for the Opencast presentation node or the base URL,
+     *               depending on the value of $returnbaseurl.
+     *
+     * @throws opencast_api_response_exception If there is an error with the API request.
      */
-    public static function get_opencast_search_service_api_instance($returnbaseurl = false) {
+    public static function get_opencast_presentation_node_api_instance($returnbaseurl = false) {
+        // We are working with default opencast instance for now.
+        $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
+
         // Get api instance from tool_opencast.
-        $api = api::get_instance();
+        $api = api::get_instance($defaultocinstanceid);
 
-        // Get the search service data.
-        $response = $api->opencastapi->services->getServiceJSON('org.opencastproject.search');
+        // We get teh admin node url first, in order to use it as fallback.
+        $adminnodeurl = settings_api::get_apiurl($defaultocinstanceid);
+
+        // Try to get the engage ui url, which represents the presentation node url.
+        $response = $api->opencastapi->baseApi->getOrgEngageUIUrl();
         $code = $response['code'];
-
-        // Make sure everything goes fine.
+        // If something went wrong, we throw opencast_api_response_exception exception.
         if ($code != 200 && $code != 404) {
             throw new opencast_api_response_exception($response);
         }
 
-        // If it could not find the search service, we return the the api instance.
+        // If it could not find the search service, we return the the api instance or the url if requested.
         if ($code == 404) {
-            return $api;
-        }
-        // Get the services object from the get call.
-        $servicesobj = $response['body'];
-
-        // Check if the get call returns any services, if not we return the default oc instance api.
-        if (!property_exists($servicesobj, 'services') || !property_exists($servicesobj->services, 'service')
-            || empty($servicesobj->services->service)) {
-            return $api;
+            return $returnbaseurl ? $adminnodeurl : $api;
         }
 
-        // Parse the service object to array, which is easier to use!
-        $searchservice = (array) $servicesobj->services->service;
+        // Fallback to the default url.
+        $engageurl = $adminnodeurl;
 
-        // Check if the search service is active and online to make calls.
-        if (!empty($searchservice) && $searchservice['active'] && $searchservice['online']) {
-            // We are working with default opencast instance for now.
-            $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
-            // Initialize the custom configs with the search service's host.
+        // Get the engage ui object from the get call.
+        $engageuiobj = (array) $response['body'];
+
+        // Check if we have a valid engage ui url.
+        if (isset($engageuiobj['org.opencastproject.engage.ui.url'])) {
+            $engageuiurl = $engageuiobj['org.opencastproject.engage.ui.url'];
+
+            // Check if the engage ui url is valid.
+            // We validate the scenario where the url of engage ui (presentation) has to have https
+            // and not be a localhost, unless the admin node is on http://localhost that determines that it is a local environment.
+            $islocal = strpos($adminnodeurl, 'localhost') !== false;
+            $isvalid = $islocal ? true
+                : (strpos($engageuiurl, 'http://') === false && strpos($engageuiurl, 'localhost') === false);
+
+            if (!empty($engageuiurl) && $isvalid ) {
+                $engageurl = $engageuiurl;
+            }
+        }
+
+        // In case the multi node server is identified.
+        if ($engageurl != $adminnodeurl) {
+            // Initialize the custom configs with the presentation node's host.
             $customconfigs = [
-                'apiurl' => preg_replace(["/\/docs/"], [''], $searchservice['host']),
+                'apiurl' => $engageurl,
                 'apiusername' => settings_api::get_apiusername($defaultocinstanceid),
                 'apipassword' => settings_api::get_apipassword($defaultocinstanceid),
                 'apitimeout' => settings_api::get_apitimeout($defaultocinstanceid),
@@ -233,9 +252,10 @@ class opencast_manager {
             // Create the tool_opencast api instance with search service's host url.
             $api = api::get_instance(null, [], $customconfigs);
         }
+
         // If only the baseurl is needed.
         if ($returnbaseurl) {
-            return preg_replace(["/\/docs/"], [''], $searchservice['host']);
+            return $engageurl;
         }
         // Finally, we return the tool_opencast api instance to make search calls.
         return $api;
@@ -259,14 +279,14 @@ class opencast_manager {
         $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
         $mainltiendpoint = settings_api::get_apiurl($defaultocinstanceid);
         // Generate lti params for the main oc instance.
-        $params['main'] = self::generate_lti_params($defaultocinstanceid, $courseid, $mainltiendpoint);
-        // Get the endpoint url of the search node instance.
-        $searchnodeltiendpoint = self::get_opencast_search_service_api_instance(true);
+        $params['admin'] = self::generate_lti_params($defaultocinstanceid, $courseid, $mainltiendpoint);
+        // Get the endpoint url of the presentation node instance.
+        $presentationnodeltiendpoint = self::get_opencast_presentation_node_api_instance(true);
 
         // Check if the opencast uses different nodes.
-        if ($mainltiendpoint != $searchnodeltiendpoint) {
+        if ($mainltiendpoint != $presentationnodeltiendpoint) {
             // Generate lti params for the search node.
-            $params['search'] = self::generate_lti_params($defaultocinstanceid, $courseid, $searchnodeltiendpoint);
+            $params['presentation'] = self::generate_lti_params($defaultocinstanceid, $courseid, $presentationnodeltiendpoint);
         }
 
         return $params;

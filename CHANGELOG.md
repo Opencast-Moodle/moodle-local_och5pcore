@@ -31,3 +31,4 @@
 - Support for OC 16 more in the area of either eliminating the use of search endpoint or making it (backward) compatible.
 - Upgrade behat test!
 - Use the latest moodle ci workflows!
+- Swtich from opencast services endpoint to api base endpoint (#8)
