@@ -34,6 +34,8 @@ Feature: Add Opencast Video into H5P Core
       | Available themes to extend  | Boost           |
     And I press "Save changes"
     Then I should see "Changes saved"
+    And I am on site homepage
+    And I turn editing mode on
     And the following config values are set as admin:
       | unaddableblocks | | theme_boost|
     And I add the "Navigation" block if not present
@@ -75,6 +77,7 @@ Feature: Add Opencast Video into H5P Core
     Then I should see "Content created."
     And I should see "Edit"
     And I switch to "h5p-player" class iframe
+    And I switch to "h5p-iframe" class iframe
     And I should see "Interactive Video"
     And I switch to the main frame
     When I click on "Edit" "link"
