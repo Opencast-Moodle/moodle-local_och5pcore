@@ -22,6 +22,8 @@ Opencast configuration for multiple nodes setups:
 ------------------
 If you use a constellation of opencast nodes, one for admin and another for presentation (i.e. engage node) it is <b>important</b> that your moodle user account in opentcast has the role that makes the services endpoint available. It is by default (and based on experience) included in the "ROLE_GROUP_MH_DEFAULT_ORG_SYSTEM_ADMINS" role.
 
+**NOTE**: In version **v4.5-r1**, we switched from using the Opencast services endpoint to the API base endpoint to retrieve the Engage node URL. As a result, the role `ROLE_GROUP_MH_DEFAULT_ORG_SYSTEM_ADMINS` **no longer has any effect** for this plugin. Instead, you need to **assign** the role `ROLE_UI_EVENTS_EMBEDDING_CODE_VIEW` to the Opencast API User.
+
 Prerequisites
 ------------------
 * Proper write permission on themes directories for the server user (e.g. "www-data" Apache User)
