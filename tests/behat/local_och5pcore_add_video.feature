@@ -64,7 +64,7 @@ Feature: Add Opencast Video into H5P Core
     And I switch to "h5p-editor-iframe" class iframe
     And I wait "5" seconds
     And I set the field "Title" to "Test Opencast Video"
-    And I scroll to ".h5peditor .h5peditor-panes .video" in och5pcore
+    And I scroll to ".h5peditor .h5peditor-panes" in och5pcore
     When I click on ".h5p-add-file[title='Add file']" "css_element"
     Then I should see "Opencast Videos"
     And I set the field "Select a video file" to "Spring"
