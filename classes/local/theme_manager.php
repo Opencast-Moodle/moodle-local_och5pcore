@@ -40,6 +40,11 @@ class theme_manager {
     /** @var string extension end flag */
     const END_OCH5PCORE_EXTENSION = '// End of local_och5pcore code block.';
 
+    /** @var array list of self extended themes */
+    private static $selfextendedthemes = [
+        'boost_union',
+    ];
+
     /**
      * Extends themes by appending the codes into related files.
      *
@@ -247,5 +252,36 @@ class theme_manager {
                 }
             }
         }
+    }
+
+    /**
+     * Checks if a theme is considered "self-extended" and should not be offered for extension by this plugin.
+     *
+     * A theme is considered self-extended if:
+     *   - Its name is listed in the selfextendedthemes array, or
+     *   - It depends on a parent theme that is self-extended.
+     *
+     * @param string $name The short name of the theme (e.g., 'boost_union').
+     * @param string $dir  The full directory path to the theme.
+     * @return bool True if the theme is self-extended or inherits from a self-extended theme, false otherwise.
+     */
+    public static function is_self_extended_theme($name, $dir) {
+        if (in_array($name, self::$selfextendedthemes)) {
+            return true;
+        }
+        // Now we check the dependencies of the theme, which determines the child themes.
+        $plugin = new \stdClass();
+        $plugin->dependencies = [];
+        include($dir . '/version.php');
+        if (!empty($plugin->dependencies)) {
+            // Check if any of the dependencies are self-extended themes.
+            foreach ($plugin->dependencies as $depname => $depversion) {
+                $parentthemename = str_replace('theme_', '', $depname);
+                if (in_array($parentthemename, self::$selfextendedthemes)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

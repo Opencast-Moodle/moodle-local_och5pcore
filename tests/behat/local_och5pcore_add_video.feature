@@ -15,9 +15,7 @@ Feature: Add Opencast Video into H5P Core
     And the following config values are set as admin:
       | config              | value                                                         | plugin          |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast   |
-      ### NOTE: As we want to perform LTI and it is only possible when the opencast server has this PR: https://github.com/elan-ev/opencast_nginx/pull/5 patched (Partitioned Cookies),
-      ### therefore we use develop.opencast.org for now, which it is the only one that has this available at the time of this upgrade!
-      | apiurl_1            | https://develop.opencast.org                                  | tool_opencast   |
+      | apiurl_1            | https://stable.opencast.org                                  | tool_opencast   |
       | apiusername_1       | admin                                                         | tool_opencast   |
       | apipassword_1       | opencast                                                      | tool_opencast   |
       | lticonsumerkey_1    | CONSUMERKEY                                                   | tool_opencast   |
@@ -85,8 +83,8 @@ Feature: Add Opencast Video into H5P Core
     And I scroll to "iframe.h5p-editor-iframe" in och5pcore
     And I switch to "h5p-editor-iframe" class iframe
     And I set the field "Title" to "Test Opencast Video Edited"
-    And I wait "2" seconds
-    And I scroll to ".h5p-av-row .h5p-remove" in och5pcore
+    And I wait "5" seconds
+    And I scroll to ".h5p-av-row" in och5pcore
     When I click on ".h5p-av-row .h5p-remove" "css_element"
     And I should see "Remove file"
     And I click on "Confirm" "button"

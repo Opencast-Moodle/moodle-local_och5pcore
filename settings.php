@@ -24,6 +24,7 @@
  */
 
 use local_och5pcore\local\opencast_manager;
+use local_och5p\local\theme_manager;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -42,20 +43,45 @@ if ($hassiteconfig) {
         ''));
 
     $availablethemes = [];
+    $selfextendedthemes = [];
 
     foreach (\core\component::get_plugin_list('theme') as $name => $dir) {
-        $availablethemes[$name] = ucfirst(str_replace('_', ' ', $name));
+        $humanreadablename = ucfirst(str_replace('_', ' ', $name));
+        if (theme_manager::is_self_extended_theme($name, $dir)) {
+            // Skip self-extended themes.
+            $selfextendedthemes[] = $humanreadablename;
+            continue;
+        }
+        $availablethemes[$name] = $humanreadablename;
     }
 
-    $extendedthemessetting = new admin_setting_configmultiselect(
-        'local_och5pcore/extended_themes',
-        get_string('setting_extended_themes', 'local_och5pcore'),
-        get_string('setting_extended_themes_desc', 'local_och5pcore'),
-        [],
-        $availablethemes
-    );
+    if (!empty($selfextendedthemes)) {
+        $selfextendedthemesinfo = \html_writer::div(
+            get_string('setting_extended_themes_selfextended', 'local_och5pcore', implode('</li><li>', $selfextendedthemes)),
+            'box py-3 generalbox alert alert-info'
+        );
+        $infodescsetting = new admin_setting_description(
+            'local_och5pcore/self_extended_themes',
+            get_string('setting_extended_themes_selfextended_label', 'local_och5pcore'),
+            $selfextendedthemesinfo
+        );
+        $settings->add($infodescsetting);
+    }
 
-    $extendedthemessetting->set_updatedcallback('local_och5pcore_extend_themes');
+    $extendedthemessetting = new admin_setting_configempty('local_och5pcore/extended_themes',
+                get_string('setting_extended_themes', 'local_och5pcore'),
+                get_string('setting_extended_themes_noavailable', 'local_och5pcore'));
+    if (!empty($availablethemes)) {
+        $extendedthemessetting = new admin_setting_configmultiselect(
+            'local_och5pcore/extended_themes',
+            get_string('setting_extended_themes', 'local_och5pcore'),
+            get_string('setting_extended_themes_desc', 'local_och5pcore'),
+            [],
+            $availablethemes
+        );
+
+        $extendedthemessetting->set_updatedcallback('local_och5pcore_extend_themes');
+    }
     $settings->add($extendedthemessetting);
 
     // LTI Module Section.

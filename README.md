@@ -37,7 +37,8 @@ Features
 * Extract and display Opencast video flavors inside H5P Interactive Videos Editor.
 * Extract and use different quality of the Opencast video inside H5P Interactive Videos.
 * Opencast LTI authentication
-* Getting search endpoint (Engage/Presentation node) from Opencast services
+* Getting search endpoint (Engage/Presentation node) from Opencast services. ([v2.1 - v3.x])
+* The Engage/Presentation node for search endpoint is retrieved from the Opencast API base endpoint. (v4.5-r1)
 
 How it works
 ------------------
@@ -71,3 +72,7 @@ In case the changes on renderers.php or even the file itself is gone, the plugin
 2. Save changes.
 3. Select the defected theme again, to repeat the changes.
 4. Save changes.
+
+Common issues
+------------------
+* If using LTI authentication with Secure Static Files option in Opencast, and the selected Opencast video is not displayed with error showing "Video format not supported", you might need to try Partitioning the cookies in your Opencast Nginx/Apache server.
