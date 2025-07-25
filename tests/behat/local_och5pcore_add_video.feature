@@ -62,8 +62,10 @@ Feature: Add Opencast Video into H5P Core
     Then I should see "New H5P interactive content"
     And I scroll to "iframe.h5p-editor-iframe" in och5pcore
     And I switch to "h5p-editor-iframe" class iframe
-    And I wait "5" seconds
+    And I wait "10" seconds
+    Then the field "Title" matches value ""
     And I set the field "Title" to "Test Opencast Video"
+    Then the field "Title" matches value "Test Opencast Video"
     And I scroll to ".h5peditor .h5peditor-panes" in och5pcore
     When I click on ".h5p-add-file[title='Add file']" "css_element"
     Then I should see "Opencast Videos"
@@ -82,7 +84,9 @@ Feature: Add Opencast Video into H5P Core
     Then I should see "Test Opencast Video"
     And I scroll to "iframe.h5p-editor-iframe" in och5pcore
     And I switch to "h5p-editor-iframe" class iframe
+    Then the field "Title" matches value "Test Opencast Video"
     And I set the field "Title" to "Test Opencast Video Edited"
+    Then the field "Title" matches value "Test Opencast Video Edited"
     And I wait "5" seconds
     And I scroll to ".h5p-av-row" in och5pcore
     When I click on ".h5p-av-row .h5p-remove" "css_element"
