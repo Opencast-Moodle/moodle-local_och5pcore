@@ -84,6 +84,7 @@ Feature: Add Opencast Video into H5P Core
     Then I should see "Test Opencast Video"
     And I scroll to "iframe.h5p-editor-iframe" in och5pcore
     And I switch to "h5p-editor-iframe" class iframe
+    And I wait "10" seconds
     Then the field "Title" matches value "Test Opencast Video"
     And I set the field "Title" to "Test Opencast Video Edited"
     Then the field "Title" matches value "Test Opencast Video Edited"
