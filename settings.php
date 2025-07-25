@@ -24,7 +24,7 @@
  */
 
 use local_och5pcore\local\opencast_manager;
-use local_och5p\local\theme_manager;
+use local_och5pcore\local\theme_manager;
 
 defined('MOODLE_INTERNAL') || die;
 
