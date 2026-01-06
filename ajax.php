@@ -42,7 +42,7 @@ if ($action != 'ltiParams' && !confirm_sesskey()) {
 $contextid = optional_param('contextid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 
-list($context, $course, $cm) = get_context_info_array($contextid);
+[$context, $course, $cm] = get_context_info_array($contextid);
 
 if (!$context && $course) {
     $context = context_course::instance($course->id);
@@ -69,7 +69,7 @@ try {
         print json_encode(['error' => get_string('invalidtoken_error', 'local_och5pcore')]);
         die;
     }
-} catch (moodle_exception $e ) {
+} catch (moodle_exception $e) {
     print json_encode(['error' => $e->getMessage()]);
     die;
 }

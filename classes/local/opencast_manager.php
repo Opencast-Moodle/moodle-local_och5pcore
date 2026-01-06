@@ -72,9 +72,8 @@ class opencast_manager {
 
             // Merge videos into $seriesvideo, when there is something.
             if ($videos->error == 0 && !empty($videos->videos)) {
-
                 // In order to process the video later on, we need to accept those video that has engage publication.
-                $engagepublishedvideos = array_filter($videos->videos, function($video) {
+                $engagepublishedvideos = array_filter($videos->videos, function ($video) {
                     return in_array('engage-player', $video->publication_status);
                 });
                 $seriesvideos = array_merge($seriesvideos, $engagepublishedvideos);
@@ -145,7 +144,7 @@ class opencast_manager {
         } else {
             // Otherwise, there are more than one track.
             // Extract videos from tracks.
-            $videotracks = array_filter($tracks, function($track) {
+            $videotracks = array_filter($tracks, function ($track) {
                 return strpos($track['mimetype'], 'video') !== false;
             });
         }
@@ -154,7 +153,6 @@ class opencast_manager {
         $sortedvideos = [];
 
         foreach ($videotracks as $videotrack) {
-
             // Double check if the track is 100% video track.
             if (strpos($videotrack['mimetype'], 'video') === false) {
                 continue;
@@ -234,7 +232,7 @@ class opencast_manager {
             $isvalid = $islocal ? true
                 : (strpos($engageuiurl, 'http://') === false && strpos($engageuiurl, 'localhost') === false);
 
-            if (!empty($engageuiurl) && $isvalid ) {
+            if (!empty($engageuiurl) && $isvalid) {
                 $engageurl = $engageuiurl;
             }
         }

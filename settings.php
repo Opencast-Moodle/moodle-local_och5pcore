@@ -31,16 +31,18 @@ defined('MOODLE_INTERNAL') || die;
 global $ADMIN, $CFG;
 
 if ($hassiteconfig) {
+    require_once($CFG->dirroot . '/local/och5pcore/lib.php');
 
-    require_once($CFG->dirroot.'/local/och5pcore/lib.php');
-
-    $settings = new admin_settingpage( 'local_och5pcore_settings', get_string('pluginname', 'local_och5pcore'));
+    $settings = new admin_settingpage('local_och5pcore_settings', get_string('pluginname', 'local_och5pcore'));
 
     // Themes Section.
     $settings->add(
-        new admin_setting_heading('local_och5pcore/extended_themes_header',
+        new admin_setting_heading(
+            'local_och5pcore/extended_themes_header',
             get_string('setting_extended_themes_header', 'local_och5pcore'),
-        ''));
+            ''
+        )
+    );
 
     $availablethemes = [];
     $selfextendedthemes = [];
@@ -68,9 +70,11 @@ if ($hassiteconfig) {
         $settings->add($infodescsetting);
     }
 
-    $extendedthemessetting = new admin_setting_configempty('local_och5pcore/extended_themes',
-                get_string('setting_extended_themes', 'local_och5pcore'),
-                get_string('setting_extended_themes_noavailable', 'local_och5pcore'));
+    $extendedthemessetting = new admin_setting_configempty(
+        'local_och5pcore/extended_themes',
+        get_string('setting_extended_themes', 'local_och5pcore'),
+        get_string('setting_extended_themes_noavailable', 'local_och5pcore')
+    );
     if (!empty($availablethemes)) {
         $extendedthemessetting = new admin_setting_configmultiselect(
             'local_och5pcore/extended_themes',
@@ -86,30 +90,41 @@ if ($hassiteconfig) {
 
     // LTI Module Section.
     $settings->add(
-        new admin_setting_heading('local_och5pcore/lti_header',
+        new admin_setting_heading(
+            'local_och5pcore/lti_header',
             get_string('setting_lti_header', 'local_och5pcore'),
             get_string('setting_lti_header_desc', 'local_och5pcore')
-        ));
+        )
+    );
 
     // Make sure the lti credentials are set before offering any settings!
     $hasconfiguredlti = opencast_manager::is_lti_credentials_configured();
 
     // Providing use lti option, when the consumer key and secret are configured in tool_opencast.
     if ($hasconfiguredlti) {
-        $settings->add(new admin_setting_configcheckbox('local_och5pcore/uselti',
+        $settings->add(new admin_setting_configcheckbox(
+            'local_och5pcore/uselti',
             get_string('setting_uselti', 'local_och5pcore'),
-            get_string('setting_uselti_desc', 'local_och5pcore'), 0));
+            get_string('setting_uselti_desc', 'local_och5pcore'),
+            0
+        ));
     } else {
         // Otherwise, we will inform the admin about this setting with extra info to configure this if needed.
         $path = '/admin/category.php?category=tool_opencast';
         $toolopencasturl = new \moodle_url($path);
-        $link = \html_writer::link($toolopencasturl,
-            get_string('setting_uselti_tool_opencast_link_name', 'local_och5pcore'), ['target' => '_blank']);
+        $link = \html_writer::link(
+            $toolopencasturl,
+            get_string('setting_uselti_tool_opencast_link_name', 'local_och5pcore'),
+            ['target' => '_blank']
+        );
         $description = get_string('setting_uselti_nolti_desc', 'local_och5pcore', $link);
         $settings->add(
-            new admin_setting_configempty('local_och5pcore/uselti',
+            new admin_setting_configempty(
+                'local_och5pcore/uselti',
                 get_string('setting_uselti', 'local_och5pcore'),
-                $description));
+                $description
+            )
+        );
     }
 
     $ADMIN->add('localplugins', $settings);
