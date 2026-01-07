@@ -69,32 +69,33 @@ class theme_manager {
 
         // Loop thorugh the themes array to extend.
         foreach ($themes as $themename) {
-
             // Get the directory of the theme.
             $dir = \core\component::get_plugin_directory('theme', $themename);
 
             // Replace the renderer class name with the theme name in the renderer content.
-            $renderercontent = str_replace('local_och5pcore_h5p_renderer',
-                "theme_{$themename}_core_h5p_renderer", $renderercontent);
+            $renderercontent = str_replace(
+                'local_och5pcore_h5p_renderer',
+                "theme_{$themename}_core_h5p_renderer",
+                $renderercontent
+            );
 
             // Step 1: Extend theme renderers.php file.
 
             // If the theme has the renderer file.
             if (file_exists("$dir/renderers.php")) {
-
                 // Get the current theme renderer file's content.
                 $themerenderer = file_get_contents("$dir/renderers.php");
 
                 // If the och5pcore content does not exists in the theme renderer.
                 if (strpos($themerenderer, "theme_{$themename}_core_h5p_renderer") === false) {
-
                     // Append the customized renderer class into the theme renderer content.
                     $themenewrenderer = $themerenderer . "\r\n\r\n" . $renderercontent;
 
                     // Make sure that new renderer content contains both current and och5pcore contents.
-                    if ($themenewrenderer && strpos($themenewrenderer, $renderercontent) !== false &&
-                        strpos($themenewrenderer, $themerenderer) !== false) {
-
+                    if (
+                        $themenewrenderer && strpos($themenewrenderer, $renderercontent) !== false &&
+                        strpos($themenewrenderer, $themerenderer) !== false
+                    ) {
                         // Insert the new renderer contents into the theme renderer file.
                         if (file_put_contents("$dir/renderers.php", $themenewrenderer) !== false) {
                             $extendedthemes[] = $themename;
@@ -130,8 +131,11 @@ class theme_manager {
             }
 
             // Revert back the class name in renderer content in order to check for the next itteration.
-            $renderercontent = str_replace("theme_{$themename}_core_h5p_renderer",
-                'local_och5pcore_h5p_renderer', $renderercontent);
+            $renderercontent = str_replace(
+                "theme_{$themename}_core_h5p_renderer",
+                'local_och5pcore_h5p_renderer',
+                $renderercontent
+            );
         }
 
         // Finally, return the list of extended themes.
@@ -159,16 +163,20 @@ class theme_manager {
                 $themerenderer = file_get_contents("$dir/renderers.php");
 
                 // If start and end tags in theme renderers content have been identified, then remove the block.
-                if (strpos($themerenderer, self::START_OCH5PCORE_EXTENSION) !== false &&
-                    strpos($themerenderer, self::END_OCH5PCORE_EXTENSION) !== false) {
-
+                if (
+                    strpos($themerenderer, self::START_OCH5PCORE_EXTENSION) !== false &&
+                    strpos($themerenderer, self::END_OCH5PCORE_EXTENSION) !== false
+                ) {
                     // Find the position of the start and end flags.
                     $beginpos = strpos($themerenderer, self::START_OCH5PCORE_EXTENSION);
                     $endpos = strpos($themerenderer, self::END_OCH5PCORE_EXTENSION);
 
                     // Extract the extension block.
-                    $och5pextensionblock = substr($themerenderer,
-                        $beginpos, ($endpos + strlen(self::END_OCH5PCORE_EXTENSION)) - $beginpos);
+                    $och5pextensionblock = substr(
+                        $themerenderer,
+                        $beginpos,
+                        ($endpos + strlen(self::END_OCH5PCORE_EXTENSION)) - $beginpos
+                    );
                     // Remove the extesion block from the theme renderer content.
                     $themerenderer = rtrim(str_replace($och5pextensionblock, '', $themerenderer));
 
@@ -186,15 +194,20 @@ class theme_manager {
                 $themeconfigcontent = file_get_contents("$dir/config.php");
 
                 // If start and end tags in theme config content have been identified, then remove the block.
-                if (strpos($themeconfigcontent, self::START_OCH5PCORE_EXTENSION) !== false &&
-                    strpos($themeconfigcontent, self::END_OCH5PCORE_EXTENSION) !== false) {
+                if (
+                    strpos($themeconfigcontent, self::START_OCH5PCORE_EXTENSION) !== false &&
+                    strpos($themeconfigcontent, self::END_OCH5PCORE_EXTENSION) !== false
+                ) {
                     // Find the position of the start and end flags.
                     $beginpos = strpos($themeconfigcontent, self::START_OCH5PCORE_EXTENSION);
                     $endpos = strpos($themeconfigcontent, self::END_OCH5PCORE_EXTENSION);
 
                     // Extract the extension block.
-                    $och5pextensionblock = substr($themeconfigcontent,
-                        $beginpos, ($endpos + strlen(self::END_OCH5PCORE_EXTENSION)) - $beginpos);
+                    $och5pextensionblock = substr(
+                        $themeconfigcontent,
+                        $beginpos,
+                        ($endpos + strlen(self::END_OCH5PCORE_EXTENSION)) - $beginpos
+                    );
                     // Remove the extesion block from the theme renderer content.
                     $themeconfigcontent = str_replace($och5pextensionblock, '', $themeconfigcontent);
 
@@ -221,7 +234,6 @@ class theme_manager {
         ];
 
         foreach ($installedthemes as $themename => $themedir) {
-
             // If the theme has the renderer file.
             if (file_exists("$themedir/renderers.php")) {
                 // Loop through the flags to find the code blocks.
@@ -236,7 +248,6 @@ class theme_manager {
 
                     // If start and end tags in theme renderers content have been identified, then remove the block.
                     if (strpos($themerenderer, $flag['start']) !== false && strpos($themerenderer, $flag['end']) !== false) {
-
                         // Find the position of the start and end flags.
                         $beginpos = strpos($themerenderer, $flag['start']);
                         $endpos = strpos($themerenderer, $flag['end']);

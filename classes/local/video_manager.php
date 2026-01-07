@@ -133,7 +133,7 @@ class video_manager {
         $options = ['<option value="">-</option>'];
         foreach ($courses as $course) {
             $context = \context_course::instance($course->id);
-            if (!is_null($context) && has_capability('block/opencast:viewunpublishedvideos', $context)) {
+            if (!is_null($context) && has_capability('tool/opencast:viewunpublishedvideos', $context)) {
                 $options[] = "<option value='{$course->id}'>{$course->shortname}</option>";
             }
         }

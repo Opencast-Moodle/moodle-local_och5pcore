@@ -14,4 +14,4 @@ jobs:
       requires-block-plugin: true
       branch-tool-plugin: main
       branch-block-plugin: main
-      branch-opencast-docker-default: 16.7
+      branch-opencast-docker-default: 17.1

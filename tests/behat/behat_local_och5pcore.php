@@ -39,7 +39,6 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_local_och5pcore extends behat_base {
-
     /**
      * adds a breakpoints
      * stops the execution until you hit enter in the console
@@ -100,7 +99,7 @@ class behat_local_och5pcore extends behat_base {
 JS;
         try {
             $this->getSession()->executeScript($function);
-        } catch (\moodle_exception $e ) {
+        } catch (\moodle_exception $e) {
             throw new \moodle_exception('behat_error_unabletofind_element', 'local_och5pcore');
         }
     }
