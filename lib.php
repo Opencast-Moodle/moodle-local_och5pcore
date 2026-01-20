@@ -48,8 +48,12 @@ function local_och5pcore_extend_themes() {
                 $themenames[] = ucfirst(str_replace('_', ' ', $diff));
             }
             $errormessage = sprintf(get_string('extended_error', 'local_och5pcore'), implode(', ', $themenames));
-            redirect($returnurl, $errormessage , 0,
-                \core\output\notification::NOTIFY_ERROR);
+            redirect(
+                $returnurl,
+                $errormessage,
+                0,
+                \core\output\notification::NOTIFY_ERROR
+            );
         }
     }
 
@@ -58,8 +62,12 @@ function local_och5pcore_extend_themes() {
 
         if (count($failedunextended) > 0) {
             $errormessage = sprintf(get_string('unextended_error', 'local_och5pcore'), implode(', ', $failedunextended));
-            redirect($returnurl, $errormessage , 0,
-                \core\output\notification::NOTIFY_ERROR);
+            redirect(
+                $returnurl,
+                $errormessage,
+                0,
+                \core\output\notification::NOTIFY_ERROR
+            );
         }
     }
 }

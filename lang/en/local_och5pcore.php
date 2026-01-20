@@ -59,4 +59,3 @@ $string['setting_uselti_nolti_desc'] = 'To enable LTI Authentication for Opencas
 $string['setting_uselti_tool_opencast_link_name'] = 'Opencast API Settings';
 $string['unextended_error'] = 'Unable to unextend theme(s): %s';
 $string['video_course_error'] = 'An error occured while obtaining Opencast course videos.';
-

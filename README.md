@@ -14,9 +14,13 @@ System requirements
       - <a href="https://github.com/Opencast-Moodle/moodle-tool_opencast">tool_opencast</a> (Min. version: <a href="https://github.com/Opencast-Moodle/moodle-tool_opencast/releases/tag/v3.11-r3">v3.11-r3</a> & Max. version (v3.11-r8))
       - <a href="https://github.com/Opencast-Moodle/moodle-block_opencast">block_opencast</a> (Min. version: <a href="https://github.com/Opencast-Moodle/moodle-block_opencast/releases/tag/v3.11-r3">v3.11-r3</a> & Max. version (v3.11-r8))
       - IMPORTANT: You should update the tool_opencast first because otherwise the block_opencast installation will fail.
-   - versions (> v3.0-r1):
+   - versions (> v3.0-r1 & < v5.0):
       - <a href="https://github.com/Opencast-Moodle/moodle-tool_opencast">tool_opencast</a> (Min. version: <a href="https://github.com/Opencast-Moodle/moodle-tool_opencast/releases/tag/v4.0-r1">v4.0-r1</a>)
       - <a href="https://github.com/Opencast-Moodle/moodle-block_opencast">block_opencast</a> (Min. version: <a href="https://github.com/Opencast-Moodle/moodle-block_opencast/releases/tag/v4.0-r1">v4.0-r1</a>)
+
+   - version (v5.x):
+     - Interactive Content – H5P 1.27.1 or newer.
+      - <a href="https://github.com/Opencast-Moodle/moodle-tool_opencast">tool_opencast</a> (Min. version: <a href="https://github.com/Opencast-Moodle/moodle-tool_opencast/releases/tag/v5.0-r4">v5.0-r4</a>)
 
 Opencast configuration for multiple nodes setups:
 ------------------
