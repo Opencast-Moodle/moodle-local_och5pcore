@@ -51,7 +51,7 @@ class opencast_manager {
      *
      * @param int $courseid the id of the course.
      *
-     * @return array the list of opencast course videos.
+     * @return object the list of opencast course videos.
      */
     public static function get_course_videos($courseid) {
         // Get an instance of apibridge.
@@ -180,7 +180,7 @@ class opencast_manager {
      *                             If false, the function returns the tool_opencast API instance.
      *                             Default value is false.
      *
-     * @return tool_opencast\local\api The tool_opencast API instance for the Opencast presentation node or the base URL,
+     * @return mixed The tool_opencast API instance for the Opencast presentation node or the base URL,
      *               depending on the value of $returnbaseurl.
      *
      * @throws opencast_api_response_exception If there is an error with the API request.
@@ -265,9 +265,14 @@ class opencast_manager {
         if (!$uselti) {
             return [];
         }
-        $params = [];
         // Get the endpoint url of the default oc instance.
         $defaultocinstanceid = settings_api::get_default_ocinstance()->id;
+        $api = api::get_instance($defaultocinstanceid, [], [], false, false);
+        // Ensure JWT takes precedence over LTI by forcefully disabling LTI whenever JWT is enabled.
+        if ($api?->jwtservice?->is_enabled() ?? false) {
+            return []; // This make the LTI feature disabled.
+        }
+        $params = [];
         $mainltiendpoint = settings_api::get_apiurl($defaultocinstanceid);
         // Generate lti params for the main oc instance.
         $params['admin'] = self::generate_lti_params($defaultocinstanceid, $courseid, $mainltiendpoint);
