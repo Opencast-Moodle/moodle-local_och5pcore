@@ -76,8 +76,6 @@ Feature: Add Opencast Video into H5P Core
     And I wait until the page is ready
     Then I should see "Content created."
     And I should see "Edit"
-    # It seems that here needs more time to process and display, therefore a 3 seconds wait.
-    And I wait "3" seconds
     And I switch to "h5p-player" class iframe
     And I switch to "h5p-iframe" class iframe
     And I should see "Interactive Video"
