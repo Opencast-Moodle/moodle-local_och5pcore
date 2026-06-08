@@ -78,7 +78,6 @@ Feature: Add Opencast Video into H5P Core
     And I should see "Edit"
     And I switch to "h5p-player" class iframe
     And I switch to "h5p-iframe" class iframe
-    And I wait "5" seconds
     And I should see "Interactive Video"
     And I switch to the main frame
     When I click on "Edit" "link"
