@@ -12,6 +12,6 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-block-plugin: true
-      branch-tool-plugin: MOODLE_405_STABLE
-      branch-block-plugin: MOODLE_405_STABLE
+      branch-tool-plugin: jwt-405 # For testing only in this branch
+      branch-block-plugin: jwt-405 # For testing only in this branch
       branch-opencast-docker-default: 17.1

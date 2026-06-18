@@ -69,10 +69,11 @@ class video_manager {
      * Extracts video's qualities from opencast video metadata catalog.
      *
      * @param string $identifier opencast video identifier
+     * @param int $courseid Course id.
      * @return array option list of opencast course videos
      * @throws moodle_exception
      */
-    public static function get_video_flavors_with_qualities($identifier) {
+    public static function get_video_flavors_with_qualities($identifier, $courseid) {
         // Get the sorted video list.
         $sortedvideos = opencast_manager::get_episode_tracks($identifier);
 
@@ -95,7 +96,8 @@ class video_manager {
             $optionvalue = [];
             $qualitiesarray = [];
             foreach ($qualities as $quality => $video) {
-                $qualitydatastring = '{"quality": "' . $quality . '", "url": "' . $video['url'] .
+                $proxyurl = self::get_proxy_video_url($identifier, $courseid, $video['url']);
+                $qualitydatastring = '{"quality": "' . $quality . '", "url": "' . $proxyurl .
                     '", "mime": "' . $match[1] . '", "id": "' . $video['id'] .
                     '", "identifier": "' . $identifier . '"}';
                 $qualitiesarray[] = $qualitydatastring;
@@ -133,7 +135,10 @@ class video_manager {
         $options = ['<option value="">-</option>'];
         foreach ($courses as $course) {
             $context = \context_course::instance($course->id);
-            if (!is_null($context) && has_capability('block/opencast:viewunpublishedvideos', $context)) {
+            if (
+                !is_null($context) &&
+                has_capability('block/opencast:viewunpublishedvideos', $context)
+            ) {
                 $options[] = "<option value='{$course->id}'>{$course->shortname}</option>";
             }
         }
@@ -155,5 +160,26 @@ class video_manager {
             'header_text' => get_string('header_text', 'local_och5pcore'),
         ];
         return $texts;
+    }
+
+    /**
+     * Gets the proxy serving video internal url from the tool opencast plugin, which helps to intercept the call.
+     *
+     * In case of JWT, the proxy helps to prepare and attach the JWT access token to the call and forward it to opencast.
+     * In case of LTI or with no authentication, the proxy only forwards the call.
+     *
+     * @param string $identifier Event id
+     * @param int $courseid Course id
+     * @param string $videostaticurl The static file url of the video.
+     * @return string The proxy video serving url.
+     */
+    private static function get_proxy_video_url(string $identifier, int $courseid, string $videostaticurl): string {
+        $params = [
+            'url' => $videostaticurl,
+            'identifier' => $identifier,
+            'courseid' => $courseid,
+        ];
+        $videoproxyurl = \tool_opencast\local\jwt_service::get_video_proxy_url($params);
+        return $videoproxyurl->out(false);
     }
 }
