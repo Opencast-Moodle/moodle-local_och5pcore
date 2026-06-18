@@ -12,6 +12,6 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-block-plugin: true
-      branch-tool-plugin: main
+      branch-tool-plugin: jwt # Only for this branch to test
       branch-block-plugin: main
       branch-opencast-docker-default: 17.1

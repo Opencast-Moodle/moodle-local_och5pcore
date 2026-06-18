@@ -87,7 +87,7 @@ switch ($action) {
     case 'videoQualities':
         try {
             $identifier = required_param('identifier', PARAM_TEXT);
-            $data['result'] = video_manager::get_video_flavors_with_qualities($identifier);
+            $data['result'] = video_manager::get_video_flavors_with_qualities($identifier, $course->id);
         } catch (moodle_exception $e) {
             $data['error'] = $e->getMessage();
         }
