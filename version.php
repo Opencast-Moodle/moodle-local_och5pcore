@@ -26,12 +26,12 @@ defined('MOODLE_INTERNAL') || die;
 
 // Defining this plug-in metadata.
 $plugin->component = 'local_och5pcore';
-$plugin->release = '4.5-r2';
-$plugin->version = 2025011501;
+$plugin->release = '4.5-r3';
+$plugin->version = 2025011502;
 $plugin->requires = 2024100700; // Requires Moodle 4.5+.
 $plugin->supported = [405, 405];
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
-    'tool_opencast' => 2024111102,
-    'block_opencast' => 2024111102,
+    'tool_opencast' => 2024111106,
+    'block_opencast' => 2025072508,
 ];

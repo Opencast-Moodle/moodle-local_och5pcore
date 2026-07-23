@@ -35,3 +35,6 @@
 
 ### v4.5-r2
 - Enhance theme management (fixes issue #12)
+
+### v4.5-r3
+- Integrate JWT authentication (4.5) (#18)
