@@ -35,3 +35,9 @@
 
 ### v4.5-r2
 - Enhance theme management (fixes issue #12)
+
+### v5.0-r2
+- Integrate JWT authentication (5.x) (#17)
+
+### v5.2-r1
+- Moodle 5.2 compatible version
