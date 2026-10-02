@@ -25,9 +25,10 @@ Feature: Add Opencast Video into H5P Core
       | workflow_roles_1    | republish-metadata                                            | block_opencast  |
       | aclcontrolafter_1   | 1                                                             | block_opencast  |
       | uselti              | 1                                                             | local_och5pcore |
+      | enablemyhome        | 1                                                             |                 |
     And I log in as "admin"
     And I get the latest h5p content types
-    And I navigate to "Plugins > Local plugins > H5P Opencast Extension (Core)" in site administration
+    And I visit "/admin/settings.php?section=local_och5pcore_settings"
     And I set the following fields to these values:
       | Available themes to extend  | Boost           |
     And I press "Save changes"
