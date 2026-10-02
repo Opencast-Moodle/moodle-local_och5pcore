@@ -80,8 +80,8 @@ class behat_local_och5pcore extends behat_base {
         $library = [
             'machineName' => "H5P.InteractiveVideo",
             'majorVersion' => 1,
-            'minorVersion' => 27,
-            'patchVersion' => 9,
+            'minorVersion' => 28,
+            'patchVersion' => 35,
             'example' => "https://h5p.org/interactive-video",
             'tutorial' => "https://h5p.org/tutorial-interactive-video",
         ];
